@@ -44,7 +44,7 @@ def parse_args():
 
     parser.add_argument('--energy_form', default='softplus', help='tanh | sigmoid | identity | softplus')
 
-    parser.add_argument('--niter', type=int, default=10000, help='number of epochs to train for')
+    parser.add_argument('--niter', type=int, default=800, help='number of epochs to train for')
     parser.add_argument('--lrE', type=float, default=0.0001, help='learning rate for E, default=0.0002')
     parser.add_argument('--lrG', type=float, default=0.0003, help='learning rate for GI, default=0.0002')
     parser.add_argument('--lrI', type=float, default=0.0003, help='learning rate for GI, default=0.0002')
@@ -727,26 +727,6 @@ def train(opt, output_dir):
                 infer_z_mu_sample, _ = netI(gen_samples)
                 recon_sample = netG(infer_z_mu_sample)
                 vutils.save_image(recon_sample.data, '%s/epoch_%03d_iter_%03d_recon_samples.png' %(outf_syn, epoch, i), normalize=True, nrow=int(np.sqrt(opt.batchSize)))
-
-                """
-                visualize the interpolation
-                z1 = I(x1), z2 = I(x2), z1---> z2, z = z1 + alpha*(z2-z1), then x = G(z)
-                """
-                infer_z_mu_input, _ = netI(inputV)
-                between_input_list = [inputV.data.cpu().numpy()]  # NUMPY list
-                zfrom = infer_z_mu_input.data.cpu()
-                perm = torch.arange(1, zfrom.shape[0] + 1)
-                perm[-1] = 0
-
-                zto = infer_z_mu_input[perm.long()].data.cpu()
-                fromto = zto - zfrom
-                for alpha in np.linspace(0, 1, 8):
-                    between_z = zfrom + alpha * fromto
-                    recon_between = netG(Variable(between_z.cuda()))
-                    between_input_list.append(recon_between.data.cpu().numpy())
-                between_input_list.append(inputV[perm.long()].data.cpu().numpy())
-                between_canvas_np = np.stack(between_input_list, axis=1).reshape(-1, 3, opt.imageSize, opt.imageSize)
-                vutils.save_image(torch.from_numpy(between_canvas_np), '%s/epoch_%03d_iter_%03d_interpolate_train.png' % (outf_syn, epoch, i), normalize=True, nrow=10, padding=5)
 
 
         if (epoch+1) % opt.saveIter == 0:
