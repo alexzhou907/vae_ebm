@@ -145,7 +145,7 @@ def set_seed(opt):
     print("Random Seed: ", opt.manualSeed)
     random.seed(opt.manualSeed)
     torch.manual_seed(opt.manualSeed)
-    # np.random.seed(opt.manualSeed)
+    
     if opt.cuda:
         torch.cuda.manual_seed_all(opt.manualSeed)
         torch.backends.cudnn.deterministic = True
