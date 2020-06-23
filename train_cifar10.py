@@ -1,5 +1,3 @@
-# 49 -> Inception:5.248693466186523, Inception std:0.04255198314785957, MSE:91.596125
-
 import os
 import random
 
@@ -15,20 +13,17 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from torchvision import datasets, transforms
 import torchvision.utils as vutils
 import torch.utils.data
 
 import numpy as np
-
 import argparse
 
 import fid_v2_tf as fid_v2
-
-from reconstruction_metric import mse_score
-
+from torchvision import datasets, transforms
 from sklearn.metrics import roc_auc_score
-from data import IgnoreLabelDataset, ConstantDataset, UniformDataset, DTDDataset
+from data import IgnoreLabelDataset, UniformDataset, DTDDataset
+from reconstruction_metric import mse_score
 
 
 def parse_args():
