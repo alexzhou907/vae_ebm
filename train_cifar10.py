@@ -18,18 +18,19 @@ import torch.utils.data
 
 import numpy as np
 import argparse
+import PIL
 
 import fid_v2_tf as fid_v2
 from torchvision import datasets, transforms
 from sklearn.metrics import roc_auc_score
 from data import IgnoreLabelDataset, UniformDataset, DTDDataset
 from reconstruction_metric import mse_score
-
+from data import SingleImagesFolderMTDataset
 
 def parse_args():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataroot', default='./data', help='path to dataset')
+    parser.add_argument('--dataroot', default='/home/alexzhou907/my_items/research/01DATA', help='path to dataset')
 
     parser.add_argument('--workers', type=int, help='number of data loading workers', default=1)
     parser.add_argument('--batchSize', type=int, default=100, help='input batch size')
@@ -84,9 +85,9 @@ def parse_args():
     parser.add_argument('--netI', default='', help="path to netI (to continue training)")
 
     parser.add_argument('--visIter', default=1, help='visualization freq')
-    parser.add_argument('--evalIter', default=1, help='eval freq')
+    parser.add_argument('--evalIter', default=50, help='eval freq')
     parser.add_argument('--saveIter', default=50, help='save freq')
-    parser.add_argument('--diagIter', default=50, help='diagnosis freq')
+    parser.add_argument('--diagIter', default=1, help='diagnosis freq')
     parser.add_argument('--print_freq', type=int, default=500, help='print frequency')
 
     parser.add_argument('--manualSeed', default=42, type=int, help='42 is the answer to everything')
@@ -216,12 +217,22 @@ def get_ood_dataset(opt, cifar_dataset):
         dataset = UniformDataset(opt.imageSize, 3, length)
 
     elif opt.target_dataset == 'texture':
-        dataset = DTDDataset(os.path.join(opt.dataroot, 'dtd/images'),transform=transforms.Compose([
+        dataset = DTDDataset(opt.imageSize, root=os.path.join(opt.dataroot, 'dtd/images'),transform=transforms.Compose([
                                                           transforms.Resize(opt.imageSize),
                                                           transforms.CenterCrop(opt.imageSize),
                                                           transforms.ToTensor(),
                                                           transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                       ]))
+    elif opt.target_dataset == 'celeba':
+        dataset = SingleImagesFolderMTDataset(root=os.path.join(opt.dataroot, 'celeba/celebA1000/'),
+                                              cache=os.path.join(opt.dataroot, 'celeba/celeba_1000_test_32.pkl'),
+                                              transform=transforms.Compose([
+                                                  PIL.Image.fromarray,
+                                                  transforms.Resize(opt.imageSize),
+                                                  transforms.CenterCrop(opt.imageSize),
+                                                  transforms.ToTensor(),
+                                                  transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                              ]))
     else:
         raise ValueError('no dataset')
 
@@ -455,7 +466,9 @@ def train(opt, output_dir):
                 if opt.cuda:
                     data = data.cuda()
 
-                disc_score_T = netE(data)
+                z_input_mu, _ = netI(data)
+
+                disc_score_T = netE(data, z_input_mu.detach())
                 Eng_T = compute_energy(disc_score_T).detach().cpu().numpy()
 
                 cifar_scores.append(- Eng_T)
@@ -469,7 +482,9 @@ def train(opt, output_dir):
                 if opt.cuda:
                     data = data.cuda()
 
-                disc_score_T = netE(data)
+                z_input_mu, _ = netI(data)
+
+                disc_score_T = netE(data, z_input_mu.detach())
                 Eng_T = compute_energy(disc_score_T).detach().cpu().numpy()
 
                 ood_scores.append(- Eng_T)
@@ -740,6 +755,7 @@ def train(opt, output_dir):
                     'optimizer_state': opt_dict[key][1].state_dict()
                 }
                 torch.save(save_dict, '%s/%s_epoch_%d.pth' % (output_dir, key, (epoch+1)))
+
         if (epoch+1) % opt.evalIter == 0:
 
             train_flag()
