@@ -54,7 +54,6 @@ def parse_args():
     parser.add_argument('--beta1I', type=float, default=0., help='beta1 for adam I')
 
     parser.add_argument('--lamb', type=float, default=1.0, help='factor for reconstruction in ALI')
-    parser.add_argument('--recon', type=float, default=1.0, help='factor for generator scaling')
 
     parser.add_argument('--Gsteps', type=int, default=1, help='number of GI steps for each G step')
     parser.add_argument('--Isteps', type=int, default=1, help='number of GI steps for each I step')
@@ -662,7 +661,7 @@ def train(opt, output_dir):
                 compute the q(z|x) entropy: which is -log_q_z
                 """
 
-                errI = opt.lamb * (opt.recon*errRecon + errKld) - (E_T + (-log_q_z))
+                errI = opt.lamb * (errRecon + errKld) - (E_T + (-log_q_z))
                 errI.backward()
 
                 if i % opt.print_freq == 0:
@@ -688,7 +687,7 @@ def train(opt, output_dir):
                 inputV_recon = netG(z_input.detach())
                 errRecon = mse_loss(inputV_recon, inputV) / batch_size
 
-                errG = opt.lamb * opt.recon*errRecon + E_F
+                errG = opt.lamb * errRecon + E_F
                 errG.backward()
 
                 if i % opt.print_freq == 0:
