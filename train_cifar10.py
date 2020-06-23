@@ -30,7 +30,7 @@ from data import SingleImagesFolderMTDataset
 def parse_args():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataroot', default='/home/alexzhou907/my_items/research/01DATA', help='path to dataset')
+    parser.add_argument('--dataroot', default='./data', help='path to dataset')
 
     parser.add_argument('--workers', type=int, help='number of data loading workers', default=1)
     parser.add_argument('--batchSize', type=int, default=100, help='input batch size')
