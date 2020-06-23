@@ -82,25 +82,9 @@ def prepareTestDset(dataset, imageSize, dataroot, batchSize):
 
     return dataloader
 
-def mse_score(dataloader,netG, netI, imageSize, batchSize, saveFolder_t, saveFolder_r, epoch):
+def mse_score(dataloader,netG, netI, imageSize, batchSize, saveFolder):
 
     input = torch.FloatTensor(batchSize, 3, imageSize, imageSize).cuda()
-    """
-    get the mse score on test data
-    save the individual images for test and reconstruction
-    """
-    saveFolder_t = saveFolder_t + '{}/'.format(epoch)
-    saveFolder_r = saveFolder_r + '{}/'.format(epoch)
-    try:
-        os.makedirs(saveFolder_r)
-    except OSError:
-        pass
-    
-    if not os.path.exists(saveFolder_t):
-        try:
-            os.makedirs(saveFolder_t)
-        except OSError:
-            pass
 
     total = 0
     batch_error = 0.0
@@ -110,27 +94,23 @@ def mse_score(dataloader,netG, netI, imageSize, batchSize, saveFolder_t, saveFol
         batch_size = img.size(0)
         input.resize_as_(img).copy_(img)
         inputV = Variable(input)
-        #inputV = data.cuda()
-        #batch_size= data.shape[0]
-            
-        # get the reconstructed images
+
         with torch.no_grad():
             infer_z_mu_input, _ = netI(inputV)
             recon_input = netG(infer_z_mu_input).cpu()
 
-        # get the per-batch sum error
         batch_error = batch_error + torch.sum((recon_input.data - inputV.cpu().data)**2)
         total = total + batch_size
-        # save the individual images and grid images for visualization
+
         if i % 10 ==0:
             # get the grid representation for first batch (easy to examine)
-            vutils.save_image(inputV.data, saveFolder_t + "step_{}_gridB0.png".format(i),
+            vutils.save_image(inputV.data, os.path.join(saveFolder, "step_{}_input_test.png".format(i)),
                               normalize=True, nrow=10)
-            vutils.save_image(recon_input.data, saveFolder_r + "step_{}_gridB0.png".format(i),
+            vutils.save_image(recon_input.data, os.path.join(saveFolder, "step_{}_recon_test.png".format(i)),
                               normalize=True, nrow=10)
 
             
     mse = batch_error.data.item() / total
-    #mse = batch_error / total
+
     return mse
     

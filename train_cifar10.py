@@ -84,14 +84,14 @@ def parse_args():
     parser.add_argument('--netI', default='', help="path to netI (to continue training)")
 
     parser.add_argument('--visIter', default=1, help='visualization freq')
-    parser.add_argument('--evalIter', default=50, help='eval freq')
+    parser.add_argument('--evalIter', default=1, help='eval freq')
     parser.add_argument('--saveIter', default=50, help='save freq')
-    parser.add_argument('--diagIter', default=1, help='diagnosis freq')
-    parser.add_argument('--print_freq', type=int, default=0, help='print frequency')
+    parser.add_argument('--diagIter', default=50, help='diagnosis freq')
+    parser.add_argument('--print_freq', type=int, default=500, help='print frequency')
 
     parser.add_argument('--manualSeed', default=42, type=int, help='42 is the answer to everything')
 
-    parser.add_argument('--gpu', type=int, default=0, metavar='S', help='gpu id (default: 0)')
+    parser.add_argument('--gpu', type=int, default=3, metavar='S', help='gpu id (default: 0)')
 
     opt = parser.parse_args()
 
@@ -154,14 +154,14 @@ def set_seed(opt):
 
 def get_dataset(opt):
     from data import IgnoreLabelDataset
-    dataset = IgnoreLabelDataset(datasets.CIFAR10(root=os.path.join(opt.dataroot, 'cifar10'), download=True,
+    dataset = IgnoreLabelDataset(datasets.CIFAR10(root=os.path.join(opt.dataroot, 'cifar'), download=True,
                                                   transform=transforms.Compose([
                                                       transforms.Resize(opt.imageSize),
                                                       transforms.ToTensor(),
                                                       transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                                   ])))
 
-    test_dataset = IgnoreLabelDataset(datasets.CIFAR10(root=os.path.join(opt.dataroot, 'cifar10'), download=True, train=False,
+    test_dataset = IgnoreLabelDataset(datasets.CIFAR10(root=os.path.join(opt.dataroot, 'cifar'), download=True, train=False,
                            transform=transforms.Compose([
                                transforms.Resize(opt.imageSize),
                                transforms.ToTensor(),
@@ -180,7 +180,7 @@ def get_dataset(opt):
 ################################### AUROC ##############################
 def get_cifar_dataset(opt):
 
-    dataset = IgnoreLabelDataset(datasets.CIFAR10(root=os.path.join(opt.dataroot, 'cifar10'), train=False,
+    dataset = IgnoreLabelDataset(datasets.CIFAR10(root=os.path.join(opt.dataroot, 'cifar'), train=False,
                                                   transform=transforms.Compose([
                                                       transforms.Resize(opt.imageSize),
                                                       transforms.ToTensor(),
@@ -722,7 +722,7 @@ def train(opt, output_dir):
 
                 infer_z_mu_input, _ = netI(inputV)
                 recon_input = netG(infer_z_mu_input)
-                vutils.save_image(recon_input.data, '%s/epoch_%03d_iter_%03d_recon_input.png' % (outf_recon, epoch, i), normalize=True, nrow=int(np.sqrt(opt.batchSize)))
+                vutils.save_image(recon_input.data, '%s/epoch_%03d_iter_%03d_recon_input.png' % (outf_syn, epoch, i), normalize=True, nrow=int(np.sqrt(opt.batchSize)))
 
                 infer_z_mu_sample, _ = netI(gen_samples)
                 recon_sample = netG(infer_z_mu_sample)
@@ -752,8 +752,7 @@ def train(opt, output_dir):
                 gen_samples_np = to_nhwc(gen_samples_np)
                 fid = fid_v2.fid_score(create_session, 255 * to_nhwc(unnormalize(dataset_full)), gen_samples_np)
 
-            mse_val = mse_score(test_dataloader, netG, netI, opt.imageSize, 100, output_subdirs + '/mse_test/',
-                                output_subdirs + '/mse_recon/', epoch)
+            mse_val = mse_score(test_dataloader, netG, netI, opt.imageSize, 100, outf_recon)
             auroc = get_auroc()
 
             logging.info("FID:{}, MSE:{}, AUROC:[{}, {}, {}, {}]".format(fid, mse_val, *auroc))
