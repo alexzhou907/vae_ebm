@@ -2,6 +2,10 @@
 
 Implementation for [Joint Training of Variational Auto-Encoder and Latent Energy-Based Model](https://arxiv.org/abs/2006.06059).
 
+## Pretrained Models
+
+Pretrained models can be accessed [here](https://www.dropbox.com/s/a3xydf594fzaokl/cifar10_pretrained.rar?dl=0).
+
 ## Requirements:
 
 Make sure the following environments are installed.
@@ -22,6 +26,3 @@ The code was tested on Unbuntu with GPU V100 and RTX 2070 super. Other platforms
 ## Training on Cifar10:
 
 ```python train_cifar.py ```
-
-
-Pretrained model can be found [here](https://www.dropbox.com/s/a3xydf594fzaokl/cifar10_pretrained.rar?dl=0)
