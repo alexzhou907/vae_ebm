@@ -16,7 +16,7 @@ Pillow=6.2.0
 matplotlib=3.1.1
 seaborn=0.9.0
 ```
-The code was tested on Unbuntu with GPU V100 and RTX 2070 super. Other platforms may/may not have numerical instablities. The FID/MSE can be relatively stable while the latent EBM is not (as stated in the paper), we tend to develop the robust ebm learning in the future work. 
+The code was tested on Unbuntu with GPU V100 and RTX 2070 super. Other platforms may/may not have numerical instablities. The FID/MSE can be relatively stable while the latent EBM is not (as stated in the paper), we aim to develop robust ebm learning in future works. 
 
 
 ## Training on Cifar10:
