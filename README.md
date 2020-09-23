@@ -9,3 +9,5 @@ Train on Cifar10
 python train_cifar.py 
 
 Note: the codes was tested on Unbuntu with GPU V100 and rtx 2070 super. Other platforms may/may not have numerical instablities. The fid/mse can be relatively stable while the latent EBM is not (as stated in the paper), we tend to develop the robust ebm learning in the future work. 
+
+You can find the pretrained model [here](https://www.dropbox.com/s/a3xydf594fzaokl/cifar10_pretrained.rar?dl=0)
