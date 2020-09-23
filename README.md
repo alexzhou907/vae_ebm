@@ -25,7 +25,9 @@ The code was tested on Unbuntu with GPU V100 and RTX 2070 super. Other platforms
 
 ## Training on CIFAR-10:
 
-```python train_cifar.py ```
+```bash
+$ python train_cifar.py
+```
 
 Please refer to the python file for optimal training parameters.
 
@@ -53,4 +55,4 @@ Some generative results are as follows.
 
 ## Acknowledgement
 
-Thanks to [@Tian Han ](https://github.com/hthth0801?tab=repositories) and [@Erik Njikamp](https://github.com/enijkamp) for their colloboration and guidance.
+For any questions related to codes and experiment setting, please contact Alex Zhou (alexzhou907@gmail.com). For questions related to model and algorithm in the paper, please contact Tian Han (hantian@ucla.edu). Thanks to [@Tian Han ](https://github.com/hthth0801?tab=repositories) and [@Erik Njikamp](https://github.com/enijkamp) for their colloboration and guidance.
