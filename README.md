@@ -34,10 +34,10 @@ Please refer to the python file for optimal training parameters.
 ## Results
 
 Some generative results are as follows.
-
-<img src="example/cifar_gen.png" width="300"/>
-&nbsp;&nbsp;
-<img src="example/lsun_gen.png" width="300"/>
+<p float="left">
+  <img src="example/cifar_gen.png" width="300"/>
+  <img src="example/lsun_gen.png" width="300"/>
+</p>
 
 
 
